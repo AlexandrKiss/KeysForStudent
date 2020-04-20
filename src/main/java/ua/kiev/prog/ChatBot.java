@@ -95,6 +95,7 @@ public class ChatBot extends TelegramLongPollingBot {
                 sendMessage(chatID, text, false);
             } else if (update.getMessage().hasContact()) { //удалить после тестов
                 CustomUser user = userService.findByUserID(chatID);
+                logger.info(user.toString());
                 sendMessage(user.getUserID(), "Проверяем данные...", false);
                 serviceUser(user);
             }

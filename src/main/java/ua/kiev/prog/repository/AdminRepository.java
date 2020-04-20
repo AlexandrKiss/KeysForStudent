@@ -6,4 +6,5 @@ import ua.kiev.prog.models.AdminUser;
 public interface AdminRepository extends JpaRepository<AdminUser, Long> {
     AdminUser findByUserID(long id);
     AdminUser findById(long id);
+    AdminUser findByAdmin(boolean admin);
 }

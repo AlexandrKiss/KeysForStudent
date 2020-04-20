@@ -68,7 +68,7 @@ public class UserService {
     }
 
     public boolean searchUser(String query){
-        AdminUser adminUser = adminService.findByID(1);
+        AdminUser adminUser = adminService.findAdmin(true);
         String url = crmUrl+"/api/v2/contacts?query="+query;
         HttpEntity<HttpHeaders> request = request(adminUser.getAccessToken());
         try {

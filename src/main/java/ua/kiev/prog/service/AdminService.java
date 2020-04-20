@@ -61,6 +61,9 @@ public class AdminService {
         adminRepository.save(user);
     }
 
+    @Transactional
+    public AdminUser findAdmin(boolean admin) {return adminRepository.findByAdmin(admin);}
+
     public boolean authAmoCRM(long chatID, String code) {
         AdminUser adminUser = this.findByUserID(chatID);
         String url = crmUrl+"/oauth2/access_token/";
@@ -84,7 +87,7 @@ public class AdminService {
             adminUser.setRefreshToken(post.getRefreshToken());
             this.updateUser(adminUser);
 //            adminUser.setStep(7);
-            logger.warn(this.findByUserID(chatID).toString());
+//            logger.warn(this.findByUserID(chatID).toString());
             return true;
         } catch (HttpClientErrorException hce) {
             logger.error(hce.getMessage());
