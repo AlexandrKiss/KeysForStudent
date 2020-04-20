@@ -24,7 +24,7 @@ public class MyController {
             if(adminService.authAmoCRM(code)) {
                 response.sendRedirect("tg://user?id=" + state);
                 chatBot.sendMessage(state, "AmoCRM подключена", false);
-                chatBot.sendMessage(state, adminService.findByUserID(state).toString(), false);
+//                chatBot.sendMessage(state, adminService.findByUserID(state).toString(), false);
             }
         }
     }
