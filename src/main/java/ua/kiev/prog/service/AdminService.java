@@ -64,8 +64,8 @@ public class AdminService {
     @Transactional
     public AdminUser findAdmin(boolean admin) {return adminRepository.findByAdmin(admin);}
 
-    public boolean authAmoCRM(long chatID, String code) {
-        AdminUser adminUser = this.findByUserID(chatID);
+    public boolean authAmoCRM(String code) {
+        AdminUser adminUser = this.findAdmin(true);
         String url = crmUrl+"/oauth2/access_token/";
 
         HttpHeaders headers = new HttpHeaders();
@@ -75,7 +75,11 @@ public class AdminService {
         map.put("client_secret", crmClientSecret);
         map.put("grant_type", "authorization_code");
 //        map.put("code", adminUser.getCode());
-        map.put("code", code);
+        if (adminUser.getRefreshToken() == null) {
+            map.put("code", code);
+        } else {
+            map.put("refresh_token", adminUser.getRefreshToken());
+        }
         map.put("redirect_uri", crmRedirectUri);
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
 
@@ -93,5 +97,12 @@ public class AdminService {
             logger.error(hce.getMessage());
             return false;
         }
+    }
+
+    public void updateToken() {
+        AdminUser adminUser = this.findAdmin(true);
+        String url = crmUrl+"/oauth2/access_token/";
+
+
     }
 }

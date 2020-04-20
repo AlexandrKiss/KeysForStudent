@@ -21,7 +21,7 @@ public class MyController {
     @GetMapping("/")
     public void crm(@RequestParam(name="code", required=false) String code, @RequestParam(name="state", required=false) long state, HttpServletResponse response) throws IOException {
         if(code!=null) {
-            if(adminService.authAmoCRM(state, code)) {
+            if(adminService.authAmoCRM(code)) {
                 response.sendRedirect("tg://user?id=" + state);
                 chatBot.sendMessage(state, "AmoCRM подключена", false);
                 chatBot.sendMessage(state, adminService.findByUserID(state).toString(), false);

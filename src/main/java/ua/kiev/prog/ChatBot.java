@@ -77,7 +77,6 @@ public class ChatBot extends TelegramLongPollingBot {
                                 .setUrl("https://www.amocrm.ru/oauth?client_id="+crmClientID+"&state="+adminUser.getUserID()+"&mode=post_message"),
                             "Авторизуйтесь в системе AmoCRM"
                     );
-//                    tuningCRM(adminUser,update.getMessage().getText());
                 } else {
                     CustomUser user = new CustomUser(update.getMessage().getContact());
                     userService.addUser(user);
@@ -87,8 +86,6 @@ public class ChatBot extends TelegramLongPollingBot {
             }
         } else if(adminService.findByUserID(chatID)!=null) { //admin panel
             AdminUser adminUser = adminService.findByUserID(chatID);
-//            if(adminUser.getStep()<=5)
-//                tuningCRM(adminUser,update.getMessage().getText());
         } else { //user panel
             if(update.getMessage().hasText()) {
                 String text = update.getMessage().getText();
@@ -111,49 +108,6 @@ public class ChatBot extends TelegramLongPollingBot {
             sendMessage(user.getUserID(), "Вы не авторизованы. Обратитесь к администрации.", false);
         }
     }
-
-//    private void tuningCRM(AdminUser adminUser, String param) {
-//        switch (adminUser.getStep()){
-//            case 0:
-//                sendMessage(adminUser.getUserID(),"Сейчас мы проведем настройку интеграции с AmoCRM", false);
-//                adminUser.setStep(1);
-//            case 1:
-//                sendMessage(adminUser.getUserID(),"Пришлите мне ID интеграции", false);
-//                adminUser.setStep(2);
-//                adminService.updateUser(adminUser);
-//                return;
-//            case 2:
-//                adminUser.setClientId(param);
-//                sendMessage(adminUser.getUserID(),"Пришлите мне секретный ключ", false);
-//                adminUser.setStep(3);
-//                adminService.updateUser(adminUser);
-//                return;
-//            case 3:
-//                adminUser.setClientSecret(param);
-//                sendMessage(adminUser.getUserID(),"Пришлите мне код авторизации", false);
-//                adminUser.setStep(4);
-//                adminService.updateUser(adminUser);
-//                return;
-//            case 4:
-//                adminUser.setCode(param);
-//                sendMessage(adminUser.getUserID(),"Пришлите мне \"redirect URL\"", false);
-//                adminUser.setStep(5);
-//                adminService.updateUser(adminUser);
-//                return;
-//            case 5:
-//                adminUser.setRedirectUri(param);
-//                adminUser.setStep(6);
-//                adminService.updateUser(adminUser);
-//                sendMessage(adminUser.getUserID(), "Проверяем подключение...", false);
-//                adminUser = adminService.getPost(adminUser);
-//                if(adminUser!=null){
-//                    adminService.updateUser(adminUser);
-//                    sendMessage(adminUser.getUserID(), "Настройка интеграции завершена. Поздравляю.", false);
-//                    sendMessage(adminUser.getUserID(), "access_token: "+adminUser.getAccessToken(), false);
-//                    sendMessage(adminUser.getUserID(), "refresh_token: "+adminUser.getRefreshToken(), false);
-//                }
-//        }
-//    }
 
     public ReplyKeyboardMarkup setButtons(boolean requestContact) {
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup()

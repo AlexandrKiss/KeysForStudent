@@ -15,14 +15,6 @@ public class AdminUser extends CustomUser {
     @JsonProperty ("refresh_token")
     private String refreshToken;
 
-    private String clientId;
-    private String clientSecret;
-    @Lob
-    private String code;
-    private String redirectUri;
-
-    private int step = 0;
-
     public AdminUser(){};
 
     public AdminUser(Contact contact) {
@@ -48,46 +40,6 @@ public class AdminUser extends CustomUser {
         this.refreshToken = refreshToken;
     }
 
-    public int getStep() {
-        return step;
-    }
-
-    public String getClientId() {
-        return clientId;
-    }
-
-    public void setClientId(String clientId) {
-        this.clientId = clientId;
-    }
-
-    public String getClientSecret() {
-        return clientSecret;
-    }
-
-    public void setClientSecret(String clientSecret) {
-        this.clientSecret = clientSecret;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getRedirectUri() {
-        return redirectUri;
-    }
-
-    public void setRedirectUri(String redirectUri) {
-        this.redirectUri = redirectUri;
-    }
-
-    public void setStep(int step) {
-        this.step = step;
-    }
-
     @Override
     public String toString() {
         return "AdminUser{" +
@@ -98,11 +50,6 @@ public class AdminUser extends CustomUser {
                 ", lastName='" + super.getLastName() + '\'' +
                 ", accessToken='" + accessToken + '\'' +
                 ", refreshToken='" + refreshToken + '\'' +
-                ", clientId='" + clientId + '\'' +
-                ", clientSecret='" + clientSecret + '\'' +
-                ", code='" + code + '\'' +
-                ", redirectUri='" + redirectUri + '\'' +
-                ", step=" + step +
                 '}';
     }
 }
