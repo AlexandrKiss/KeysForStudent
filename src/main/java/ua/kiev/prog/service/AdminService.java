@@ -84,7 +84,7 @@ public class AdminService {
             adminUser.setRefreshToken(post.getRefreshToken());
             this.updateUser(adminUser);
 //            adminUser.setStep(7);
-            logger.warn(adminUser.toString());
+            logger.warn(this.findByUserID(chatID).toString());
             return true;
         } catch (HttpClientErrorException hce) {
             logger.error(hce.getMessage());
