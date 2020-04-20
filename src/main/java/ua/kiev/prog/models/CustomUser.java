@@ -5,6 +5,7 @@ import org.telegram.telegrambots.meta.api.objects.Contact;
 import javax.persistence.*;
 
 @Entity
+@Table(name = "custom_user")
 public class CustomUser {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -14,6 +15,7 @@ public class CustomUser {
     private Long phoneNumber;
     private String firstName;
     private String lastName;
+    private boolean admin;
 
     public CustomUser() { }
 
@@ -64,13 +66,23 @@ public class CustomUser {
         this.lastName = lastName;
     }
 
+    public boolean isAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
+    }
+
     @Override
     public String toString() {
         return "CustomUser{" +
-                "userID=" + userID +
+                "id=" + id +
+                ", userID=" + userID +
                 ", phoneNumber=" + phoneNumber +
-                ", firstName='" + '\'' + firstName + '\'' +
-                ", lastName='" + '\'' + lastName + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", admin=" + admin +
                 '}';
     }
 }

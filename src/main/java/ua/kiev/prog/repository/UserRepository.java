@@ -5,4 +5,5 @@ import ua.kiev.prog.models.CustomUser;
 
 public interface UserRepository extends JpaRepository<CustomUser, Long> {
     CustomUser findByUserID(long id);
+    int countByAdmin(boolean val);
 }
