@@ -61,7 +61,7 @@ public class AdminService {
         adminRepository.save(user);
     }
 
-    public boolean getPost(long chatID, String code) {
+    public boolean authAmoCRM(long chatID, String code) {
         AdminUser adminUser = this.findByUserID(chatID);
         String url = crmUrl+"/oauth2/access_token/";
 
@@ -82,6 +82,7 @@ public class AdminService {
             assert post != null;
             adminUser.setAccessToken(post.getAccessToken());
             adminUser.setRefreshToken(post.getRefreshToken());
+            this.updateUser(adminUser);
 //            adminUser.setStep(7);
             logger.warn(adminUser.toString());
             return true;

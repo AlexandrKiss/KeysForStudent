@@ -1,11 +1,11 @@
 package ua.kiev.prog;
 
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import ua.kiev.prog.service.AdminService;
 
-@Controller
+@RestController
 public class MyController {
     private final AdminService adminService;
 
@@ -16,7 +16,7 @@ public class MyController {
     @GetMapping("/")
     public void crm(@RequestParam(name="code", required=false) String code, @RequestParam(name="state", required=false) long state) {
         if(code!=null) {
-            adminService.getPost(state, code);
+            adminService.authAmoCRM(state, code);
         }
     }
 }
