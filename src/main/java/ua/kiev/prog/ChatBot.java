@@ -12,6 +12,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
@@ -169,7 +170,7 @@ public class ChatBot extends TelegramLongPollingBot {
         return replyKeyboardMarkup;
     }
 
-    private void sendMessage(Long chatID, String text, boolean requestContact) {
+    void sendMessage(Long chatID, String text, boolean requestContact) {
         SendChatAction sendChatAction = new SendChatAction()
                 .setChatId(chatID)
                 .setAction(ActionType.get("typing"));
@@ -177,12 +178,12 @@ public class ChatBot extends TelegramLongPollingBot {
                 .setChatId(chatID)
                 .setText(text)
                 .setParseMode("html");
-        message.setReplyMarkup(setButtons(true));
-//        if(requestContact) {
-//            message.setReplyMarkup(setButtons(true));
-//        } else {
-//            message.setReplyMarkup(new ReplyKeyboardRemove());
-//        }
+//        message.setReplyMarkup(setButtons(true));
+        if(requestContact) {
+            message.setReplyMarkup(setButtons(true));
+        } else {
+            message.setReplyMarkup(new ReplyKeyboardRemove());
+        }
         try {
             execute(sendChatAction);
             execute(message);

@@ -11,16 +11,22 @@ import java.io.IOException;
 @RestController
 public class MyController {
     private final AdminService adminService;
+    private final ChatBot chatBot;
 
-    public MyController(AdminService adminService) {
+    public MyController(AdminService adminService, ChatBot chatBot) {
         this.adminService = adminService;
+        this.chatBot = chatBot;
     }
 
     @GetMapping("/")
     public void crm(@RequestParam(name="code", required=false) String code, @RequestParam(name="state", required=false) long state, HttpServletResponse response) throws IOException {
         if(code!=null) {
-            adminService.authAmoCRM(state, code);
-            response.sendRedirect("tg://user?id="+state);
+            if(adminService.authAmoCRM(state, code)) {
+                response.sendRedirect("tg://user?id=" + state);
+                chatBot.sendMessage(state, "AmoCRM подключена", false);
+                chatBot.sendMessage(state, adminService.findByUserID(state).toString(), false);
+            }
         }
     }
+
 }
