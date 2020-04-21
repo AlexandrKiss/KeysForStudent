@@ -43,6 +43,6 @@ public class MyController {
 
     @GetMapping("/")
     public String google() {
-        return "google3e98005063c4092d";
+        return "index";
     }
 }
