@@ -41,8 +41,8 @@ public class MyController {
 
     }
 
-    @GetMapping("/")
+    @GetMapping("/google3e98005063c4092d.html")
     public String google() {
-        return "index";
+        return "google-site-verification: google3e98005063c4092d.html";
     }
 }
