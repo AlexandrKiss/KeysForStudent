@@ -41,7 +41,7 @@ public class MyController {
 
     }
 
-    @GetMapping("/google3e98005063c4092d.html")
+    @GetMapping("/")
     public String google() {
         return "google3e98005063c4092d";
     }
