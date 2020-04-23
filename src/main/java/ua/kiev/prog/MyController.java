@@ -36,11 +36,6 @@ public class MyController {
         }
     }
 
-    @GetMapping("/google")
-    public void crm() {
-
-    }
-
     @GetMapping("/google3e98005063c4092d.html")
     public String google() {
         return "google-site-verification: google3e98005063c4092d.html";

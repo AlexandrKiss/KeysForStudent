@@ -67,27 +67,28 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public boolean searchUser(String query){
+    public Contact[] searchUser(String query){
         AdminUser adminUser = adminService.findAdmin(true);
         String url = crmUrl+"/api/v2/contacts?query="+query;
         HttpEntity<HttpHeaders> request = request(adminUser.getAccessToken());
+        Contact[] contacts = null;
         try {
-            Contact[] contacts = this.restTemplate.exchange(url, HttpMethod.GET, request, ContactGet.class)
+            contacts = this.restTemplate.exchange(url, HttpMethod.GET, request, ContactGet.class)
                     .getBody().getContactEmbedded().getContacts();
-            for (Contact contact : contacts) {
-                logger.info("В AmoCRM обнаружен пользователь "+contact.getName());
-                int[] leads = contact.getLeads().getLeads();
-                if (leads != null) {
-                    logger.info("Количество сделок: "+leads.length);
-                    for (int leadID : leads) viewLeads(adminUser, leadID);
-                } else {
-                    logger.info("У пользователя "+ contact.getName() +" нет текущих сделок");
-                }
-            }
+//            for (Contact contact : contacts) {
+//                logger.info("В AmoCRM обнаружен пользователь "+contact.getName());
+//                int[] leads = contact.getLeads().getLeads();
+//                if (leads != null) {
+//                    logger.info("Количество сделок: "+leads.length);
+//                    for (int leadID : leads) viewLeads(adminUser, leadID);
+//                } else {
+//                    logger.info("У пользователя "+ contact.getName() +" нет текущих сделок");
+//                }
+//            }
         } catch (HttpClientErrorException hce) {
             logger.error(hce.getMessage());
         }
-        return validateStatus;
+        return contacts;
     }
     private void viewLeads(AdminUser adminUser, int query){
         String url = crmUrl+"/api/v2/leads?id="+query;

@@ -19,6 +19,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ua.kiev.prog.models.AdminUser;
 import ua.kiev.prog.models.CustomUser;
+import ua.kiev.prog.models.contatct.Contact;
 import ua.kiev.prog.service.AdminService;
 import ua.kiev.prog.service.UserService;
 
@@ -102,11 +103,14 @@ public class ChatBot extends TelegramLongPollingBot {
     private void serviceUser(CustomUser user){
         String numString = user.getPhoneNumber().toString();
         String customNum = numString.substring(numString.length()-9);
-        if (userService.searchUser(customNum)) {
-            sendMessage(user.getUserID(), "Вы авторизованы. Ваш ключ: 1380-1310-8760-1543-0173-7899", false);
-        } else {
-            sendMessage(user.getUserID(), "Вы не авторизованы. Обратитесь к администрации.", false);
-        }
+        Contact[] contacts = userService.searchUser(customNum);
+//        String numString = user.getPhoneNumber().toString();
+//        String customNum = numString.substring(numString.length()-9);
+//        if (userService.searchUser(customNum)) {
+//            sendMessage(user.getUserID(), "Вы авторизованы. Ваш ключ: 1380-1310-8760-1543-0173-7899", false);
+//        } else {
+//            sendMessage(user.getUserID(), "Вы не авторизованы. Обратитесь к администрации.", false);
+//        }
     }
 
     public ReplyKeyboardMarkup setButtons(boolean requestContact) {
