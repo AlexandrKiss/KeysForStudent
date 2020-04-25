@@ -1,5 +1,6 @@
 package ua.kiev.prog;
 
+import com.google.api.services.drive.model.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -70,24 +71,28 @@ public class ChatBot extends TelegramLongPollingBot {
         Long chatID = update.getMessage().getChatId();
 
         if (userService.findByUserID(chatID) == null) { //authorization == null
-            authorization(chatID,
-                    update.getMessage().getChat().getUserName(),
-                    update.getMessage().hasContact(),
-                    update.getMessage().getContact());
+            try {
+                authorization(chatID,
+                        update.getMessage().getChat().getUserName(),
+                        update.getMessage().hasContact(),
+                        update.getMessage().getContact());
+            } catch (GeneralSecurityException | IOException e) {
+                e.printStackTrace();
+            }
         } else if(adminService.findByUserID(chatID)!=null) { //admin panel
             AdminUser adminUser = adminService.findAdmin(true);
             try {
-                sendInlineButtons(adminUser.getUserID(),
-                        new InlineKeyboardButton()
-                                .setText("Google Drive")
-                                .setUrl("https://accounts.google.com/o/oauth2/auth?" +
-                                        "access_type=offline&" +
-                                        "client_id=291052134520-qkpsvkmn11kardqojqe1kcb9bmr4pr1i.apps.googleusercontent.com&" +
-                                        "redirect_uri=https://keysforstudent.herokuapp.com/Callback&" +
-                                        "response_type=code&" +
-                                        "scope=https://www.googleapis.com/auth/drive"),
-                        "Авторизуйтесь в Google Drive"
-                );
+//                sendInlineButtons(adminUser.getUserID(),
+//                        new InlineKeyboardButton()
+//                                .setText("Google Drive")
+//                                .setUrl("https://accounts.google.com/o/oauth2/auth?" +
+//                                        "access_type=offline&" +
+//                                        "client_id=291052134520-qkpsvkmn11kardqojqe1kcb9bmr4pr1i.apps.googleusercontent.com&" +
+//                                        "redirect_uri=https://keysforstudent.herokuapp.com/Callback&" +
+//                                        "response_type=code&" +
+//                                        "scope=https://www.googleapis.com/auth/drive"),
+//                        "Авторизуйтесь в Google Drive"
+//                );
                 AdminService.service();
             } catch (IOException | GeneralSecurityException e) {
                 e.printStackTrace();
@@ -99,12 +104,16 @@ public class ChatBot extends TelegramLongPollingBot {
             } else if (update.getMessage().hasContact()) { //удалить после тестов
                 CustomUser user = userService.findByUserID(chatID);
                 sendMessage(user.getUserID(), VERIFICATION.getMessage(), false);
-                serviceUser(user);
+                try {
+                    serviceUser(user);
+                } catch (GeneralSecurityException | IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
 
-    private void serviceUser(CustomUser user){
+    private void serviceUser(CustomUser user) throws GeneralSecurityException, IOException {
         AdminUser adminUser = adminService.findAdmin(true);
         String numString = user.getPhoneNumber().toString();
         String customNum = numString.substring(numString.length()-9);
@@ -123,6 +132,8 @@ public class ChatBot extends TelegramLongPollingBot {
                         for (Lead lead : leads) {
                             if (userService.viewStatuses(adminUser, lead.getPipeline().getId(), lead.getStatus())) {
                                 sendMessage(user.getUserID(), PROFIT.getMessage(), false);
+                                File file = adminService.getKeys();
+                                sendMessage(user.getUserID(), file.getWebViewLink(),false);
                             } else {
                                 sendMessage(user.getUserID(), NO_MONEY.getMessage(), true);
                             }
@@ -133,7 +144,7 @@ public class ChatBot extends TelegramLongPollingBot {
         }
     }
 
-    private void authorization(Long chatID, String chatName, boolean hasContact, org.telegram.telegrambots.meta.api.objects.Contact getContact) {
+    private void authorization(Long chatID, String chatName, boolean hasContact, org.telegram.telegrambots.meta.api.objects.Contact getContact) throws GeneralSecurityException, IOException {
         if (!hasContact) {
             sendMessage(chatID, "Что-бы продолжить, нажмите на кнопку \"Авторизация\"", true);
         } else {
