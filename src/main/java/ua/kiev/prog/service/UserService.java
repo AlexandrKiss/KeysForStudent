@@ -22,7 +22,6 @@ import ua.kiev.prog.repository.UserRepository;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @Service
 @PropertySource("classpath:telegram.properties")
@@ -30,7 +29,6 @@ public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
-    private final AdminService adminService;
     private final RestTemplate restTemplate;
 
     @Value("${crm.url}")
@@ -38,9 +36,8 @@ public class UserService {
 
     private boolean validateStatus = false;
 
-    public UserService(UserRepository userRepository, AdminService adminService, RestTemplateBuilder restTemplateBuilder) {
+    public UserService(UserRepository userRepository, RestTemplateBuilder restTemplateBuilder) {
         this.userRepository = userRepository;
-        this.adminService = adminService;
         this.restTemplate = restTemplateBuilder.build();
     }
 
@@ -67,68 +64,61 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public Contact[] searchUser(String query){
-        AdminUser adminUser = adminService.findAdmin(true);
+    public Contact[] searchUser(AdminUser adminUser,String query){
         String url = crmUrl+"/api/v2/contacts?query="+query;
         HttpEntity<HttpHeaders> request = request(adminUser.getAccessToken());
-        Contact[] contacts = null;
         try {
-            contacts = this.restTemplate.exchange(url, HttpMethod.GET, request, ContactGet.class)
-                    .getBody().getContactEmbedded().getContacts();
-//            for (Contact contact : contacts) {
-//                logger.info("В AmoCRM обнаружен пользователь "+contact.getName());
-//                int[] leads = contact.getLeads().getLeads();
-//                if (leads != null) {
-//                    logger.info("Количество сделок: "+leads.length);
-//                    for (int leadID : leads) viewLeads(adminUser, leadID);
-//                } else {
-//                    logger.info("У пользователя "+ contact.getName() +" нет текущих сделок");
-//                }
-//            }
+            ResponseEntity<ContactGet> re = this.restTemplate.exchange(url, HttpMethod.GET, request, ContactGet.class);
+            if (re.getBody() != null)
+                return re.getBody().getContactEmbedded().getContacts();
         } catch (HttpClientErrorException hce) {
             logger.error(hce.getMessage());
         }
-        return contacts;
+        return null;
     }
-    private void viewLeads(AdminUser adminUser, int query){
+    public Lead[] viewLeads(AdminUser adminUser, int query){
         String url = crmUrl+"/api/v2/leads?id="+query;
         HttpEntity<HttpHeaders> request = request(adminUser.getAccessToken());
         try {
-            Lead[] leads = Objects.requireNonNull(this.restTemplate.exchange(url, HttpMethod.GET, request, LeadGet.class)
-                    .getBody()).getLeadEmbedded().getLeads();
-            for(Lead lead: leads) {
-                viewStatuses(adminUser, lead.getPipeline().getId(), lead.getStatus());
+            ResponseEntity<LeadGet> re = this.restTemplate.exchange(url, HttpMethod.GET, request, LeadGet.class);
+            if (re.getBody() != null)
+                return re.getBody().getLeadEmbedded().getLeads();
+        } catch (HttpClientErrorException hce) {
+            logger.error(hce.getMessage());
+        }
+        return null;
+    }
+
+    public boolean viewStatuses(AdminUser adminUser, int query, long status){
+        String url = crmUrl+"/api/v2/pipelines?id="+query;
+        HttpEntity<HttpHeaders> request = request(adminUser.getAccessToken());
+        try {
+            ResponseEntity<Map> st = this.restTemplate.exchange(url, HttpMethod.GET, request, Map.class);
+            if (st.getBody() != null) {
+                return equalsStatusName(st.getBody(), status);
             }
         } catch (HttpClientErrorException hce) {
             logger.error(hce.getMessage());
         }
+        return false;
     }
 
-    private void viewStatuses(AdminUser adminUser, int query, long status){
-        String url = crmUrl+"/api/v2/pipelines?id="+query;
-        HttpEntity<HttpHeaders> request = request(adminUser.getAccessToken());
-        try {
-            ResponseEntity<Map> st = Objects.requireNonNull(this.restTemplate.exchange(url, HttpMethod.GET, request, Map.class));
-            equalsStatusName(st.getBody(), status);
-        } catch (HttpClientErrorException hce) {
-            logger.error(hce.getMessage());
-        }
-    }
-
-    private void equalsStatusName(Map map, long statusCode){
+    public boolean equalsStatusName(Map map, long statusCode){
+        boolean profit = false;
         for (Object o: map.values()){
-            if (o.getClass() != String.class && o.getClass() != Integer.class &&o.getClass() != Boolean.class){
+            if (o.getClass() != String.class && o.getClass() != Integer.class && o.getClass() != Boolean.class){
                 map = (Map) o;
                 if (map.get(statusCode+"")!=null) {
                     Gson gson = new Gson();
                     Status status = gson.fromJson(gson.toJson(map.get(statusCode+"")), Status.class);
                     String statusName = status.getName().toLowerCase();
-                    logger.info("Сделка в статусе: "+status.getName());
-                    validateStatus = statusName.equals("получена предоплата") || statusName.equals("успешно реализовано");
+                    if (statusName.equals("получена предоплата") || statusName.equals("успешно реализовано"))
+                        return true;
                 }
-                equalsStatusName(map, statusCode);
+                profit = equalsStatusName(map, statusCode);
             }
         }
+        return profit;
     }
 
     private HttpEntity<HttpHeaders> request(String accessToken) {

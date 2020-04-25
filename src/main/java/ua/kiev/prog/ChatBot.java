@@ -20,11 +20,17 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ua.kiev.prog.models.AdminUser;
 import ua.kiev.prog.models.CustomUser;
 import ua.kiev.prog.models.contatct.Contact;
+import ua.kiev.prog.models.lead.Lead;
 import ua.kiev.prog.service.AdminService;
 import ua.kiev.prog.service.UserService;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static ua.kiev.prog.enums.AdminMessages.CHEATER;
+import static ua.kiev.prog.enums.UserMessages.*;
 
 @Component
 @PropertySource("classpath:telegram.properties")
@@ -64,56 +70,100 @@ public class ChatBot extends TelegramLongPollingBot {
         Long chatID = update.getMessage().getChatId();
 
         if (userService.findByUserID(chatID) == null) { //authorization == null
-            if (!update.getMessage().hasContact()) {
-                sendMessage(chatID, "Что-бы продолжить, нажмите на кнопку \"Авторизация\"", true);
-            } else {
-                if (userService.countByAdmin(true) == 0) {
-                    AdminUser adminUser = new AdminUser(update.getMessage().getContact());
-                    adminUser.setAdmin(true);
-                    adminService.addUser(adminUser);
-                    sendMessage(adminUser.getUserID(), "Вы авторизованы как Администратор", false);
-                    sendInlineButtons(adminUser.getUserID(),
-                            new InlineKeyboardButton()
-                                .setText("AmoCRM")
-                                .setUrl("https://www.amocrm.ru/oauth?client_id="+crmClientID+"&state="+adminUser.getUserID()+"&mode=post_message"),
-                            "Авторизуйтесь в системе AmoCRM"
-                    );
-                } else {
-                    CustomUser user = new CustomUser(update.getMessage().getContact());
-                    userService.addUser(user);
-                    sendMessage(user.getUserID(), "Проверяем данные...", false);
-                    serviceUser(user);
-                }
-            }
+            authorization(chatID,
+                    update.getMessage().getChat().getUserName(),
+                    update.getMessage().hasContact(),
+                    update.getMessage().getContact());
         } else if(adminService.findByUserID(chatID)!=null) { //admin panel
-            AdminUser adminUser = adminService.findByUserID(chatID);
+            AdminUser adminUser = adminService.findAdmin(true);
+            try {
+                sendInlineButtons(adminUser.getUserID(),
+                        new InlineKeyboardButton()
+                                .setText("Google Drive")
+                                .setUrl("https://accounts.google.com/o/oauth2/auth?" +
+                                        "access_type=offline&" +
+                                        "client_id=291052134520-qkpsvkmn11kardqojqe1kcb9bmr4pr1i.apps.googleusercontent.com&" +
+                                        "redirect_uri=http://localhost:8889/Callback&" +
+                                        "response_type=code&" +
+                                        "scope=https://www.googleapis.com/auth/drive"),
+                        "Авторизуйтесь в Google Drive"
+                );
+                AdminService.service();
+            } catch (IOException | GeneralSecurityException e) {
+                e.printStackTrace();
+            }
         } else { //user panel
             if(update.getMessage().hasText()) {
                 String text = update.getMessage().getText();
                 sendMessage(chatID, text, false);
             } else if (update.getMessage().hasContact()) { //удалить после тестов
                 CustomUser user = userService.findByUserID(chatID);
-                logger.info(user.toString());
-                sendMessage(user.getUserID(), "Проверяем данные...", false);
+                sendMessage(user.getUserID(), VERIFICATION.getMessage(), false);
                 serviceUser(user);
             }
         }
     }
 
     private void serviceUser(CustomUser user){
+        AdminUser adminUser = adminService.findAdmin(true);
         String numString = user.getPhoneNumber().toString();
         String customNum = numString.substring(numString.length()-9);
-        Contact[] contacts = userService.searchUser(customNum);
-//        String numString = user.getPhoneNumber().toString();
-//        String customNum = numString.substring(numString.length()-9);
-//        if (userService.searchUser(customNum)) {
-//            sendMessage(user.getUserID(), "Вы авторизованы. Ваш ключ: 1380-1310-8760-1543-0173-7899", false);
-//        } else {
-//            sendMessage(user.getUserID(), "Вы не авторизованы. Обратитесь к администрации.", false);
-//        }
+        Contact[] contacts = userService.searchUser(adminUser, customNum);
+
+        if (contacts == null ) {
+            sendMessage(user.getUserID(), NO_USER.getMessage(),true);
+        } else {
+            for (Contact contact : contacts) {
+                int[] leadsContact = contact.getLeads().getLeads();
+                if (leadsContact == null) {
+                    sendMessage(user.getUserID(), NO_COURSE.getMessage(),true);
+                } else {
+                    for (int leadID : leadsContact) {
+                        Lead[] leads = userService.viewLeads(adminUser, leadID);
+                        for (Lead lead : leads) {
+                            if (userService.viewStatuses(adminUser, lead.getPipeline().getId(), lead.getStatus())) {
+                                sendMessage(user.getUserID(), PROFIT.getMessage(), false);
+                            } else {
+                                sendMessage(user.getUserID(), NO_MONEY.getMessage(), true);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    public ReplyKeyboardMarkup setButtons(boolean requestContact) {
+    private void authorization(Long chatID, String chatName, boolean hasContact, org.telegram.telegrambots.meta.api.objects.Contact getContact) {
+        if (!hasContact) {
+            sendMessage(chatID, "Что-бы продолжить, нажмите на кнопку \"Авторизация\"", true);
+        } else {
+            if (userService.countByAdmin(true) == 0) {
+                AdminUser adminUser = new AdminUser(getContact);
+                adminUser.setAdmin(true);
+                adminService.addUser(adminUser);
+                sendMessage(adminUser.getUserID(), "Вы авторизованы как Администратор", false);
+                sendInlineButtons(adminUser.getUserID(),
+                        new InlineKeyboardButton()
+                                .setText("AmoCRM")
+                                .setUrl("https://www.amocrm.ru/oauth?client_id="+crmClientID+"&state="+adminUser.getUserID()+"&mode=post_message"),
+                        "Авторизуйтесь в системе AmoCRM"
+                );
+            } else {
+                CustomUser user = new CustomUser(getContact);
+                if (chatID.equals(user.getUserID())) {
+                    userService.addUser(user);
+                    sendMessage(user.getUserID(), VERIFICATION.getMessage(), false);
+                    serviceUser(user);
+                } else {
+                    sendMessage(chatID, NO_CHEAT.getMessage(), true);
+                    sendMessage(adminService.findAdmin(true).getUserID(),
+                            CHEATER.getMessage()+chatName,false);
+                }
+            }
+        }
+    }
+
+    private ReplyKeyboardMarkup setButtons() {
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup()
                 .setSelective(true)
                 .setResizeKeyboard(true);
@@ -122,7 +172,7 @@ public class ChatBot extends TelegramLongPollingBot {
 
         KeyboardRow keyboardFirstRow = new KeyboardRow();
         // Добавляем кнопку в первую строчку клавиатуры
-        keyboardFirstRow.add(new KeyboardButton("Авторизация").setRequestContact(requestContact));
+        keyboardFirstRow.add(new KeyboardButton("Авторизация").setRequestContact(true));
         keyboard.add(keyboardFirstRow);
         // и устанваливаем этот список нашей клавиатуре
         replyKeyboardMarkup.setKeyboard(keyboard);
@@ -137,9 +187,8 @@ public class ChatBot extends TelegramLongPollingBot {
                 .setChatId(chatID)
                 .setText(text)
                 .setParseMode("html");
-//        message.setReplyMarkup(setButtons(true));
         if(requestContact) {
-            message.setReplyMarkup(setButtons(true));
+            message.setReplyMarkup(setButtons());
         } else {
             message.setReplyMarkup(new ReplyKeyboardRemove());
         }

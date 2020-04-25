@@ -8,6 +8,7 @@ import ua.kiev.prog.service.AdminService;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 @RestController
 @PropertySource("classpath:telegram.properties")
@@ -21,23 +22,20 @@ public class MyController {
     }
 
     @GetMapping("/amocrm")
-    public void crm(@RequestParam(name="code", required=false) String code, @RequestParam(name="state", required=false) long state, HttpServletResponse response) throws IOException {
+    public void crm(@RequestParam(name="code", required=false) String code,
+                    @RequestParam(name="state", required=false) long state,
+                    HttpServletResponse response) throws IOException, GeneralSecurityException {
         if(code!=null) {
             if(adminService.authAmoCRM(code)) {
                 response.sendRedirect("tg://user?id=" + state);
                 chatBot.sendMessage(state, "AmoCRM подключена", false);
-//                chatBot.sendInlineButtons(state,
-//                        new InlineKeyboardButton()
-//                                .setText("AmoCRM")
-//                                .setUrl("https://www.amocrm.ru/oauth?client_id="+crmClientID+"&state="+state+"&mode=post_message"),
-//                        "Авторизуйтесь в системе AmoCRM"
-//                );
+                AdminService.service();
             }
         }
     }
 
-    @GetMapping("/google3e98005063c4092d.html")
-    public String google() {
-        return "google-site-verification: google3e98005063c4092d.html";
+    @GetMapping("/Callback")
+    public void google() {
+
     }
 }
