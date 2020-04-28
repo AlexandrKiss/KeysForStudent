@@ -30,15 +30,17 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final RestTemplate restTemplate;
+    private final AdminService adminService;
 
     @Value("${crm.url}")
     private String crmUrl;
 
     private boolean validateStatus = false;
 
-    public UserService(UserRepository userRepository, RestTemplateBuilder restTemplateBuilder) {
+    public UserService(UserRepository userRepository, RestTemplateBuilder restTemplateBuilder, AdminService adminService) {
         this.userRepository = userRepository;
         this.restTemplate = restTemplateBuilder.build();
+        this.adminService = adminService;
     }
 
     @Transactional(readOnly = true)
@@ -73,6 +75,7 @@ public class UserService {
                 return re.getBody().getContactEmbedded().getContacts();
         } catch (HttpClientErrorException hce) {
             logger.error(hce.getMessage());
+            adminService.authAmoCRM(null);
         }
         return null;
     }
@@ -85,6 +88,7 @@ public class UserService {
                 return re.getBody().getLeadEmbedded().getLeads();
         } catch (HttpClientErrorException hce) {
             logger.error(hce.getMessage());
+            adminService.authAmoCRM(null);
         }
         return null;
     }
@@ -99,6 +103,7 @@ public class UserService {
             }
         } catch (HttpClientErrorException hce) {
             logger.error(hce.getMessage());
+            adminService.authAmoCRM(null);
         }
         return false;
     }

@@ -107,7 +107,7 @@ public class AdminService {
         map.put("client_id", crmClientID);
         map.put("client_secret", crmClientSecret);
         map.put("grant_type", "authorization_code");
-        if (adminUser.getRefreshToken() == null) {
+        if (code != null) {
             map.put("code", code);
         } else {
             map.put("refresh_token", adminUser.getRefreshToken());
@@ -242,7 +242,7 @@ public class AdminService {
                 .setApplicationName(APPLICATION_NAME)
                 .build();
     }
-//https://accounts.google.com/o/oauth2/auth?access_type=offline&client_id=291052134520-qkpsvkmn11kardqojqe1kcb9bmr4pr1i.apps.googleusercontent.com&redirect_uri=http://localhost:8889/Callback&response_type=code&scope=https://www.googleapis.com/auth/drive
+
     public File getKeys() throws GeneralSecurityException, IOException {
         Drive service = service();
 
