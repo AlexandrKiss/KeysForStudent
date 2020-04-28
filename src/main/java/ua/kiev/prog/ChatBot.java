@@ -241,6 +241,7 @@ public class ChatBot extends TelegramLongPollingBot {
             execute(new SendMessage()
                     .setChatId(chatID)
                     .setText(text)
+                    .setParseMode("html")
                     .setReplyMarkup(inlineKeyboardMarkup)
             );
         } catch (TelegramApiException e) {
