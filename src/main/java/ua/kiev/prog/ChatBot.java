@@ -106,6 +106,17 @@ public class ChatBot extends TelegramLongPollingBot {
 
     private void serviceUser(CustomUser user) throws GeneralSecurityException, IOException {
         AdminUser adminUser = adminService.findAdmin(true);
+        if (adminUser.getAccessToken() == null) {
+            sendMessage(user.getUserID(), TECHNICAL_ISSUES.getMessage(), false);
+            sendMessage(adminUser.getUserID(), "Вы не закончили интеграцию с AmoCRM!", false);
+            sendInlineButtons(adminUser.getUserID(),
+                    new InlineKeyboardButton()
+                            .setText("AmoCRM")
+                            .setUrl("https://www.amocrm.ru/oauth?client_id="+crmClientID+"&state="+adminUser.getUserID()+"&mode=post_message"),
+                    "Авторизуйтесь в системе AmoCRM"
+            );
+            return;
+        }
         String numString = user.getPhoneNumber().toString();
         String customNum = numString.substring(numString.length()-9);
         Contact[] contacts = userService.searchUser(adminUser, customNum);
