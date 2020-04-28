@@ -9,9 +9,11 @@ import javax.persistence.Lob;
 @Entity
 public class AdminUser extends CustomUser {
     @Lob
+//    @Type(type="org.hibernate.type.BinaryType")
     @JsonProperty("access_token")
     private String accessToken;
     @Lob
+//    @Type(type="org.hibernate.type.BinaryType")
     @JsonProperty ("refresh_token")
     private String refreshToken;
 

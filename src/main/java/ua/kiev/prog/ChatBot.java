@@ -81,18 +81,9 @@ public class ChatBot extends TelegramLongPollingBot {
             }
         } else if(adminService.findByUserID(chatID)!=null) { //admin panel
             AdminUser adminUser = adminService.findAdmin(true);
+            sendMessage(adminUser.getUserID(),"AccessToken: "+adminUser.getAccessToken()+"\n" +
+                    "RefreshToken: "+adminUser.getRefreshToken(),false);
             try {
-//                sendInlineButtons(adminUser.getUserID(),
-//                        new InlineKeyboardButton()
-//                                .setText("Google Drive")
-//                                .setUrl("https://accounts.google.com/o/oauth2/auth?" +
-//                                        "access_type=offline&" +
-//                                        "client_id=291052134520-qkpsvkmn11kardqojqe1kcb9bmr4pr1i.apps.googleusercontent.com&" +
-//                                        "redirect_uri=https://keysforstudent.herokuapp.com/Callback&" +
-//                                        "response_type=code&" +
-//                                        "scope=https://www.googleapis.com/auth/drive"),
-//                        "Авторизуйтесь в Google Drive"
-//                );
                 AdminService.service();
             } catch (IOException | GeneralSecurityException e) {
                 e.printStackTrace();
