@@ -107,7 +107,7 @@ public class ChatBot extends TelegramLongPollingBot {
     private void serviceUser(CustomUser user) throws GeneralSecurityException, IOException {
         AdminUser adminUser = adminService.findAdmin(true);
         if (adminUser.getAccessToken() == null) {
-            sendMessage(user.getUserID(), TECHNICAL_ISSUES.getMessage(), false);
+            sendMessage(user.getUserID(), TECHNICAL_ISSUES.getMessage(), true);
             sendMessage(adminUser.getUserID(), "Вы не закончили интеграцию с AmoCRM!", false);
             sendInlineButtons(adminUser.getUserID(),
                     new InlineKeyboardButton()
@@ -139,10 +139,11 @@ public class ChatBot extends TelegramLongPollingBot {
                                     sendMessage(user.getUserID(), file.getWebViewLink(), false);
                                     int countLicenses = adminService.countFiles();
                                     if (countLicenses <= 10)
-                                        sendMessage(adminUser.getUserID(), "Внимание!\n" +
-                                                "На диске осталось "+countLicenses+" лицензий!", false);
+                                        sendMessage(adminUser.getUserID(), "<b>Внимание!</b>\n" +
+                                                "Количество лицензий на диске: "+countLicenses+" шт.\n" +
+                                                "Не забудьте их пополнить.", false);
                                 } else {
-                                    sendMessage(user.getUserID(), TECHNICAL_ISSUES.getMessage(), false);
+                                    sendMessage(user.getUserID(), TECHNICAL_ISSUES.getMessage(), true);
                                     sendMessage(adminUser.getUserID(), NO_LICENSES.getMessage(), false);
                                 }
                             } else {
