@@ -128,6 +128,7 @@ public class ChatBot extends TelegramLongPollingBot {
                                 File file = adminService.getKeys();
                                 if (file != null) {
                                     sendMessage(user.getUserID(), file.getWebViewLink(), false);
+                                    user.setLicense(file.getWebViewLink());
                                     int countLicenses = adminService.countFiles();
                                     if (countLicenses <= 10)
                                     sendInlineButtons(adminUser.getUserID(),
