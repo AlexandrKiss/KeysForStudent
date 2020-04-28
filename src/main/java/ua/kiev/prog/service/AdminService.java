@@ -106,10 +106,11 @@ public class AdminService {
         Map<String, Object> map = new HashMap<>();
         map.put("client_id", crmClientID);
         map.put("client_secret", crmClientSecret);
-        map.put("grant_type", "authorization_code");
         if (code != null) {
+            map.put("grant_type", "authorization_code");
             map.put("code", code);
         } else {
+            map.put("grant_type", "refresh_token");
             map.put("refresh_token", adminUser.getRefreshToken());
         }
         map.put("redirect_uri", crmRedirectUri);
