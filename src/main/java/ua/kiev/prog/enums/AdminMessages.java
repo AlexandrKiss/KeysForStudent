@@ -9,6 +9,9 @@ public enum AdminMessages {
         this.message = s;
     }
 
+    AdminMessages() {
+    }
+
     public String getMessage() {
         return message;
     }

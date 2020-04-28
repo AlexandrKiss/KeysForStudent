@@ -80,26 +80,18 @@ public class ChatBot extends TelegramLongPollingBot {
                 e.printStackTrace();
             }
         } else if(adminService.findByUserID(chatID)!=null) { //admin panel
-            AdminUser adminUser = adminService.findAdmin(true);
-            sendMessage(adminUser.getUserID(),"AccessToken: "+adminUser.getAccessToken()+"\n" +
-                    "RefreshToken: "+adminUser.getRefreshToken(),false);
-            try {
-                AdminService.service();
-            } catch (IOException | GeneralSecurityException e) {
-                e.printStackTrace();
-            }
+
         } else { //user panel
-            if(update.getMessage().hasText()) {
-                String text = update.getMessage().getText();
-                sendMessage(chatID, text, false);
-            } else if (update.getMessage().hasContact()) { //удалить после тестов
-                CustomUser user = userService.findByUserID(chatID);
-                sendMessage(user.getUserID(), VERIFICATION.getMessage(), false);
+            CustomUser user = userService.findByUserID(chatID);
+            sendMessage(user.getUserID(), VERIFICATION.getMessage(), false);
+            if (user.getLicense() == null) {
                 try {
                     serviceUser(user);
                 } catch (GeneralSecurityException | IOException e) {
                     e.printStackTrace();
                 }
+            } else {
+                sendMessage(user.getUserID(), user.getLicense(), false);
             }
         }
     }
@@ -108,12 +100,11 @@ public class ChatBot extends TelegramLongPollingBot {
         AdminUser adminUser = adminService.findAdmin(true);
         if (adminUser.getAccessToken() == null) {
             sendMessage(user.getUserID(), TECHNICAL_ISSUES.getMessage(), true);
-            sendMessage(adminUser.getUserID(), "Вы не закончили интеграцию с AmoCRM!", false);
             sendInlineButtons(adminUser.getUserID(),
                     new InlineKeyboardButton()
                             .setText("AmoCRM")
                             .setUrl("https://www.amocrm.ru/oauth?client_id="+crmClientID+"&state="+adminUser.getUserID()+"&mode=post_message"),
-                    "Авторизуйтесь в системе AmoCRM"
+                    "Вы не закончили интеграцию с AmoCRM!"
             );
             return;
         }
@@ -170,6 +161,11 @@ public class ChatBot extends TelegramLongPollingBot {
                 adminUser.setAdmin(true);
                 adminService.addUser(adminUser);
                 sendMessage(adminUser.getUserID(), "Вы авторизованы как Администратор", false);
+                try {
+                    AdminService.service();
+                } catch (IOException | GeneralSecurityException e) {
+                    e.printStackTrace();
+                }
                 sendInlineButtons(adminUser.getUserID(),
                         new InlineKeyboardButton()
                                 .setText("AmoCRM")
@@ -229,7 +225,7 @@ public class ChatBot extends TelegramLongPollingBot {
     }
 
     public void sendInlineButtons(Long chatID, InlineKeyboardButton button, String text) {
-        InlineKeyboardMarkup inlineKeyboardMarkup =new InlineKeyboardMarkup();
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
         List<InlineKeyboardButton> keyboardButtonsRow = new ArrayList<>();
 

@@ -15,6 +15,7 @@ public class CustomUser {
     private Long phoneNumber;
     private String firstName;
     private String lastName;
+    private String license;
     private boolean admin;
 
     public CustomUser() { }
@@ -64,6 +65,14 @@ public class CustomUser {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public String getLicense() {
+        return license;
+    }
+
+    public void setLicense(String license) {
+        this.license = license;
     }
 
     public boolean isAdmin() {
