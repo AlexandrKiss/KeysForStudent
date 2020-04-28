@@ -106,16 +106,31 @@ public class AdminService {
         Map<String, Object> map = new HashMap<>();
         map.put("client_id", crmClientID);
         map.put("client_secret", crmClientSecret);
-        if (code != null) {
-            map.put("grant_type", "authorization_code");
-            map.put("code", code);
-        } else {
-            map.put("grant_type", "refresh_token");
-            map.put("refresh_token", adminUser.getRefreshToken());
-        }
+        map.put("grant_type", "authorization_code");
+        map.put("code", code);
         map.put("redirect_uri", crmRedirectUri);
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
 
+        return requestAuthAmoCRM(adminUser, url, entity);
+    }
+
+    public boolean updateToken(AdminUser adminUser) {
+        String url = crmUrl+"/oauth2/access_token/";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        Map<String, Object> map = new HashMap<>();
+        map.put("client_id", crmClientID);
+        map.put("client_secret", crmClientSecret);
+        map.put("grant_type", "refresh_token");
+        map.put("refresh_token", adminUser.getRefreshToken());
+        map.put("redirect_uri", crmRedirectUri);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
+
+        return requestAuthAmoCRM(adminUser, url, entity);
+    }
+
+    private boolean requestAuthAmoCRM(AdminUser adminUser, String url, HttpEntity<Map<String, Object>> entity) {
         Post post;
         try {
             post = this.restTemplate.postForObject(url, entity, Post.class);
@@ -128,13 +143,6 @@ public class AdminService {
             logger.error(hce.getMessage());
             return false;
         }
-    }
-
-    public void updateToken() {
-        AdminUser adminUser = this.findAdmin(true);
-        String url = crmUrl+"/oauth2/access_token/";
-
-
     }
 
     //Google Drive methods

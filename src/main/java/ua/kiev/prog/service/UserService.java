@@ -75,7 +75,7 @@ public class UserService {
                 return re.getBody().getContactEmbedded().getContacts();
         } catch (HttpClientErrorException hce) {
             logger.error(hce.getMessage());
-            adminService.authAmoCRM(null);
+            adminService.updateToken(adminUser);
         }
         return null;
     }
