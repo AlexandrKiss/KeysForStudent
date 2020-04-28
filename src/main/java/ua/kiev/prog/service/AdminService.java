@@ -283,4 +283,19 @@ public class AdminService {
         }
         return file;
     }
+
+    public int countFiles() throws IOException, GeneralSecurityException {
+        Drive service = service();
+
+        String folderNewId = null;
+        List<File> newFolder = getGoogleFilesByName(service, googleDriveFolderNew,"=");
+        for (File folder : newFolder) {
+            folderNewId = folder.getId();
+        }
+
+        //Get the first file
+        File file = null;
+        List<File> googleFiles = getGoogleRootFolders(service, folderNewId);
+        return googleFiles.size();
+    }
 }

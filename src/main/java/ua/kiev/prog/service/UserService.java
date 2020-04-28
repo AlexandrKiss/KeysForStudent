@@ -88,7 +88,6 @@ public class UserService {
                 return re.getBody().getLeadEmbedded().getLeads();
         } catch (HttpClientErrorException hce) {
             logger.error(hce.getMessage());
-            adminService.authAmoCRM(null);
         }
         return null;
     }
@@ -103,7 +102,6 @@ public class UserService {
             }
         } catch (HttpClientErrorException hce) {
             logger.error(hce.getMessage());
-            adminService.authAmoCRM(null);
         }
         return false;
     }

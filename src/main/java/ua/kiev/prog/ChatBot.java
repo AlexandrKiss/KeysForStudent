@@ -30,7 +30,7 @@ import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ua.kiev.prog.enums.AdminMessages.CHEATER;
+import static ua.kiev.prog.enums.AdminMessages.*;
 import static ua.kiev.prog.enums.UserMessages.*;
 
 @Component
@@ -124,7 +124,16 @@ public class ChatBot extends TelegramLongPollingBot {
                             if (userService.viewStatuses(adminUser, lead.getPipeline().getId(), lead.getStatus())) {
                                 sendMessage(user.getUserID(), PROFIT.getMessage(), false);
                                 File file = adminService.getKeys();
-                                sendMessage(user.getUserID(), file.getWebViewLink(),false);
+                                if (file != null) {
+                                    sendMessage(user.getUserID(), file.getWebViewLink(), false);
+                                    int countLicenses = adminService.countFiles();
+                                    if (countLicenses <= 10)
+                                        sendMessage(adminUser.getUserID(), "Внимание!\n" +
+                                                "На диске осталось "+countLicenses+" лицензий!", false);
+                                } else {
+                                    sendMessage(user.getUserID(), TECHNICAL_ISSUES.getMessage(), false);
+                                    sendMessage(adminUser.getUserID(), NO_LICENSES.getMessage(), false);
+                                }
                             } else {
                                 sendMessage(user.getUserID(), NO_MONEY.getMessage(), true);
                             }

@@ -1,6 +1,8 @@
 package ua.kiev.prog.enums;
 
 public enum UserMessages {
+    TECHNICAL_ISSUES("Технические проблемы. Приносим свои извинения за причененные неудобства.\n" +
+            "Администрация Prog.kiev.ua"),
     NO_CHEAT("Так не пойдет. Попробуй без читерства."),
     VERIFICATION("Проверяем данные..."),
     NO_USER("По данному номеру не найдено ни одного совапдения.\n" +

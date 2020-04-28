@@ -1,6 +1,7 @@
 package ua.kiev.prog.enums;
 
 public enum AdminMessages {
+    NO_LICENSES("Внимание! Закончились лицензии!"),
     CHEATER("У нас завелся читер: ");
 
     private String message;
