@@ -284,6 +284,17 @@ public class AdminService {
         return file;
     }
 
+    public String getFolderURL() throws IOException, GeneralSecurityException {
+        Drive service = service();
+
+        String folderNewURL = null;
+        List<File> newFolder = getGoogleFilesByName(service, googleDriveFolderNew,"=");
+        for (File folder : newFolder) {
+            folderNewURL = folder.getWebViewLink();
+        }
+        return folderNewURL;
+    }
+
     public int countFiles() throws IOException, GeneralSecurityException {
         Drive service = service();
 

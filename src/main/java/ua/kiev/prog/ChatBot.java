@@ -139,9 +139,14 @@ public class ChatBot extends TelegramLongPollingBot {
                                     sendMessage(user.getUserID(), file.getWebViewLink(), false);
                                     int countLicenses = adminService.countFiles();
                                     if (countLicenses <= 10)
-                                        sendMessage(adminUser.getUserID(), "<b>Внимание!</b>\n" +
-                                                "Количество лицензий на диске: "+countLicenses+" шт.\n" +
-                                                "Не забудьте их пополнить.", false);
+                                    sendInlineButtons(adminUser.getUserID(),
+                                            new InlineKeyboardButton()
+                                                    .setText("Google Drive")
+                                                    .setUrl(adminService.getFolderURL()),
+                                            "<b>Внимание!</b>\n" +
+                                                    "Количество лицензий на диске: "+countLicenses+" шт.\n" +
+                                                    "Не забудьте их пополнить."
+                                    );
                                 } else {
                                     sendMessage(user.getUserID(), TECHNICAL_ISSUES.getMessage(), true);
                                     sendMessage(adminUser.getUserID(), NO_LICENSES.getMessage(), false);
