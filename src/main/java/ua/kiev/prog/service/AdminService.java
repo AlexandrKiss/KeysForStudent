@@ -179,7 +179,8 @@ public class AdminService {
         }
 
         do {
-            FileList result = driveService.files().list().setQ(query).setSpaces("drive") //
+            FileList result = driveService.files().list().setQ(query).setSpaces("drive")
+                    .setOrderBy("folder,modifiedTime,name")
                     // Fields will be assigned values: id, name, createdTime
                     .setFields("nextPageToken, files(id, name, webViewLink)")//
                     .setPageToken(pageToken).execute();
